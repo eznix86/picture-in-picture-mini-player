@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
+    </head>
+    <body class="bg-white h-[1024px]">
+        <div class="bg-zinc-500 aspect-video">
+            <div x-data="miniPlayer">
+                <div
+                    class="container mx-auto mt-8"
+                    id="main-container"
+                    x-ref="mainContainer"
+                >
+                    <div x-ref="videoWrapper">
+                        <video x-ref="video" class="w-full" controls>
+                            <source
+                                src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                                type="video/mp4"
+                            />
+                        </video>
+                    </div>
+                </div>
+                <div
+                    class="fixed right-3 rounded-md md:rounded-lg shadow-xl bottom-3 w-3/5 md:max-w-sm lg:max-w-md xl:max-w-lg aspect-video z-0 overflow-hidden ease-in-out"
+                    x-ref="fixedContainer"
+                    x-show="isFixed"
+                    x-transition:enter="transition-opacity duration-1000"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition-opacity duration-1000"
+                    x-transition:leave-start="opacity-100"
+                ></div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("alpine:init", () => {
+                Alpine.data("miniPlayer", () => ({
+                    isFixed: false,
+                    init() {
+                        new IntersectionObserver(
+                            ([entry]) => {
+                                if (!entry.isIntersecting)
+                                    this.showFixedVideo();
+                                else this.hideFixedVideo();
+                            },
+                            { threshold: 0.9 },
+                        ).observe(this.$refs.mainContainer);
+                    },
+                    showFixedVideo() {
+                        this.isFixed = true;
+                        this.$nextTick(() => {
+                            this.$refs.fixedContainer.appendChild(
+                                this.$refs.videoWrapper,
+                            );
+                        });
+                    },
+                    hideFixedVideo() {
+                        this.isFixed = false;
+                        this.$nextTick(() => {
+                            this.$refs.mainContainer.appendChild(
+                                this.$refs.videoWrapper,
+                            );
+                        });
+                    },
+                }));
+            });
+        </script>
+    </body>
+</html>
